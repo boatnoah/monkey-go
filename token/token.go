@@ -16,7 +16,7 @@ const (
 	INT   = "INT"
 
 	// Operators
-	ASSIGN   = "ASSIGN"
+	ASSIGN   = "="
 	PLUS     = "+"
 	MINUS    = "-"
 	ASTERICK = "*"
@@ -34,6 +34,8 @@ const (
 
 	EQ     = "=="
 	NOT_EQ = "!="
+	LT     = "<"
+	GT     = ">"
 
 	LET      = "LET"
 	FUNCTION = "FUNCTION"

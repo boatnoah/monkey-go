@@ -39,7 +39,7 @@ var precedences = map[token.TokenType]int{
 	token.PLUS:     SUM,
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
-	token.ASTERICK: EQUALS,
+	token.ASTERICK: PRODUCT,
 }
 
 type (
@@ -65,6 +65,10 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpressions)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpressions)
+	p.registerPrefix(token.TRUE, p.parseBooleans)
+	p.registerPrefix(token.FALSE, p.parseBooleans)
+	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpressions)
 	p.registerInfix(token.MINUS, p.parseInfixExpressions)
@@ -74,8 +78,6 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.NOT_EQ, p.parseInfixExpressions)
 	p.registerInfix(token.LT, p.parseInfixExpressions)
 	p.registerInfix(token.GT, p.parseInfixExpressions)
-	p.registerPrefix(token.TRUE, p.parseBooleans)
-	p.registerPrefix(token.FALSE, p.parseBooleans)
 
 	return p
 }
@@ -166,13 +168,12 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.currToken.Type]
-
 	if prefix == nil {
 		p.noPrefixParseFnError(p.currToken.Type)
 		return nil
 	}
-
 	leftExp := prefix()
+
 	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 		if infix == nil {
@@ -220,11 +221,24 @@ func (p *Parser) parseInfixExpressions(left ast.Expression) ast.Expression {
 	precedence := p.currPrecedence()
 	p.nextToken()
 	expression.Right = p.parseExpression(precedence)
+
 	return expression
 }
 
 func (p *Parser) parseBooleans() ast.Expression {
 	return &ast.Boolean{Token: p.currToken, Value: p.currTokenIs(token.TRUE)}
+}
+
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	p.nextToken()
+
+	exp := p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	return exp
 }
 
 func (p *Parser) currTokenIs(t token.TokenType) bool {
