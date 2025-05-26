@@ -62,7 +62,7 @@ func (ls *LetStatement) String() string {
 
 	out.WriteString(ls.TokenLiteral() + " ")
 	out.WriteString(ls.Name.String())
-	out.WriteString(" ")
+	out.WriteString(" = ")
 
 	if ls.Value != nil {
 		out.WriteString(ls.Value.String())
@@ -74,8 +74,8 @@ func (ls *LetStatement) String() string {
 }
 
 type ReturnStatement struct {
-	Token token.Token // token.RETURN
-	Value Expression
+	Token       token.Token // token.RETURN
+	ReturnValue Expression
 }
 
 func (rs *ReturnStatement) statementNode() {
@@ -90,8 +90,8 @@ func (rs *ReturnStatement) String() string {
 
 	out.WriteString(rs.TokenLiteral() + " ")
 
-	if rs.Value != nil {
-		out.WriteString(rs.Value.String())
+	if rs.ReturnValue != nil {
+		out.WriteString(rs.ReturnValue.String())
 	}
 
 	out.WriteString(";")
@@ -288,6 +288,37 @@ func (fl *FunctionLiteral) String() string {
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") ")
 	out.WriteString(fl.Body.String())
+
+	return out.String()
+}
+
+// expression(<comma separated expression>)
+
+type CallExpression struct {
+	Token     token.Token // "("
+	Function  Expression
+	Arguments []Expression
+}
+
+func (ce *CallExpression) expressionNode() {}
+
+func (ce *CallExpression) TokenLiteral() string {
+	return ce.Token.Literal
+}
+
+func (ce *CallExpression) String() string {
+	var out bytes.Buffer
+
+	args := []string{}
+
+	for _, a := range ce.Arguments {
+		args = append(args, a.String())
+	}
+
+	out.WriteString(ce.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
 
 	return out.String()
 }
