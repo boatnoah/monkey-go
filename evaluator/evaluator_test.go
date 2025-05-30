@@ -15,12 +15,35 @@ func TestEvalIntegerExpress(t *testing.T) {
 	}{
 		{"5", 5},
 		{"10", 10},
+		{"-5", -5},
+		{"-10", -10},
 	}
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		testIntegerObject(t, evaluated, tt.expected)
 	}
+}
+
+func TestBangOperator(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+
+		{"!true", false},
+		{"!false", true},
+		{"!5", false},
+		{"!!5", true},
+		{"!!false", false},
+		{"!!true", true},
+	}
+
+	for _, tt := range tests {
+		evulated := testEval(tt.input)
+		testBooleanObject(t, evulated, tt.expected)
+	}
+
 }
 
 func testEval(input string) object.Object {
