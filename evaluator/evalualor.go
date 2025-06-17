@@ -12,7 +12,7 @@ var (
 	FALSE = &object.Boolean{Value: false}
 )
 
-func Eval(node ast.Node, env *object.Enviroment) object.Object {
+func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node.Statements, env)
@@ -164,7 +164,7 @@ func evalIntegerInfixExpression(left object.Object, operator string, right objec
 	}
 }
 
-func evalIfExpression(ie *ast.IfExpression, env *object.Enviroment) object.Object {
+func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
 	condition := Eval(ie.Condition, env)
 	if isError(condition) {
 		return condition
@@ -178,7 +178,7 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Enviroment) object.Objec
 	}
 }
 
-func evalBlockStatement(block *ast.BlockStatement, env *object.Enviroment) object.Object {
+func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
 
 	var result object.Object
 
@@ -198,7 +198,7 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Enviroment) objec
 	return result
 }
 
-func evalIdentifier(node *ast.Identifier, env *object.Enviroment) object.Object {
+func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
 	val, ok := env.Get(node.Value)
 	if !ok {
 		return newError("identifier not found: %s;", node.Value)
@@ -217,9 +217,9 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	return unwrapReturnValue(evaluated)
 }
 
-func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Enviroment {
+func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
 
-	env := object.NewEnclosedEnviroment(fn.Env)
+	env := object.NewEnclosedEnvironment(fn.Env)
 
 	for paramIdx, param := range fn.Parameters {
 		env.Set(param.Value, args[paramIdx])
@@ -231,7 +231,7 @@ func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Enviro
 
 func unwrapReturnValue(obj object.Object) object.Object {
 	if returnValue, ok := obj.(*object.ReturnValue); ok {
-		return returnValue
+		return returnValue.Value
 	}
 
 	return obj
@@ -260,7 +260,7 @@ func nativeBooleanToBooleanObject(input bool) *object.Boolean {
 	return FALSE
 }
 
-func evalProgram(stmts []ast.Statement, env *object.Enviroment) object.Object {
+func evalProgram(stmts []ast.Statement, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range stmts {
@@ -278,7 +278,7 @@ func evalProgram(stmts []ast.Statement, env *object.Enviroment) object.Object {
 	return result
 }
 
-func evalExpression(exps []ast.Expression, env *object.Enviroment) []object.Object {
+func evalExpression(exps []ast.Expression, env *object.Environment) []object.Object {
 	var result []object.Object
 
 	for _, e := range exps {
