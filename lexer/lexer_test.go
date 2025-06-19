@@ -22,6 +22,9 @@ func TestNextToken(t *testing.T) {
 			} else {	
 				return false
 			}
+
+			"foobar"
+			"foo bar"
 			`
 	tests := []struct {
 		expectedType    token.TokenType
@@ -83,6 +86,8 @@ func TestNextToken(t *testing.T) {
 		{token.RETURN, "return"},
 		{token.FALSE, "false"},
 		{token.RBRACE, "}"},
+		{token.STRING, "foobar"},
+		{token.STRING, "foo bar"},
 		{token.EOF, ""},
 	}
 
