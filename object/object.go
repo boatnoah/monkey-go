@@ -129,7 +129,7 @@ type Builtin struct {
 	Fn BuiltinFunction
 }
 
-func (b *Builtin) Type() string {
+func (b *Builtin) Type() ObjectType {
 	return BUILTIN_OBJ
 }
 
